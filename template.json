@@ -1,0 +1,723 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sites_CloudComputingGruppeZ_name": {
+            "defaultValue": "CloudComputingGruppeZ",
+            "type": "String"
+        },
+        "serverfarms_CloudComputingGruppeZ_name": {
+            "defaultValue": "CloudComputingGruppeZ",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2022-03-01",
+            "name": "[parameters('serverfarms_CloudComputingGruppeZ_name')]",
+            "location": "North Europe",
+            "sku": {
+                "name": "S1",
+                "tier": "Standard",
+                "size": "S1",
+                "family": "S",
+                "capacity": 1
+            },
+            "kind": "app",
+            "properties": {
+                "perSiteScaling": false,
+                "elasticScaleEnabled": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0,
+                "zoneRedundant": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2022-03-01",
+            "name": "[parameters('sites_CloudComputingGruppeZ_name')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_CloudComputingGruppeZ_name'))]"
+            ],
+            "kind": "app",
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "cloudcomputinggruppez.azurewebsites.net",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "cloudcomputinggruppez.scm.azurewebsites.net",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_CloudComputingGruppeZ_name'))]",
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "vnetRouteAllEnabled": false,
+                "vnetImagePullEnabled": false,
+                "vnetContentShareEnabled": false,
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "acrUseManagedIdentityCreds": false,
+                    "alwaysOn": false,
+                    "http20Enabled": true,
+                    "functionAppScaleLimit": 0,
+                    "minimumElasticInstanceCount": 0
+                },
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": true,
+                "clientCertEnabled": false,
+                "clientCertMode": "Required",
+                "hostNamesDisabled": false,
+                "customDomainVerificationId": "26C6AAD691F93D279EE1F63D80E71431C52C900F629DD296BB849C42BF745EA1",
+                "containerSize": 0,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": true,
+                "redundancyMode": "None",
+                "storageAccountRequired": false,
+                "keyVaultReferenceIdentity": "SystemAssigned"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/ftp')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/scm')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/web')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v7.0",
+                "phpVersion": "5.6",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": "VS2019",
+                "httpLoggingEnabled": false,
+                "acrUseManagedIdentityCreds": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$CloudComputingGruppeZ",
+                "scmType": "GitHubAction",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": false,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": false
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": [
+                        {
+                            "actionHostName": "cloudcomputinggruppez-preprod.azurewebsites.net",
+                            "reroutePercentage": 10,
+                            "name": "PreProd"
+                        }
+                    ]
+                },
+                "autoHealEnabled": false,
+                "vnetRouteAllEnabled": false,
+                "vnetPrivatePortsCount": 0,
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": true,
+                "minTlsVersion": "1.2",
+                "scmMinTlsVersion": "1.2",
+                "ftpsState": "AllAllowed",
+                "preWarmedInstanceCount": 0,
+                "functionsRuntimeScaleMonitoringEnabled": false,
+                "minimumElasticInstanceCount": 0,
+                "azureStorageAccounts": {}
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/87661830246a4100a30911926f254073')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"7569db5fedee5e8dc5139382f044ee57fd5b935b\",\"repoName\":\"gubesch/CloudComputing_GruppeZ\",\"slotName\":\"Production\",\"commitMessage\":\"test\"}",
+                "start_time": "2023-03-12T10:06:20.2375012Z",
+                "end_time": "2023-03-12T10:06:28.467408Z",
+                "active": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/95e0b6bc31b947419c154f700499698c')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"b117363554a899821f47c2abb3846831005f90a2\",\"repoName\":\"gubesch/CloudComputing_GruppeZ\",\"slotName\":\"Production\",\"commitMessage\":\"Add or update the Azure App Service build and deployment workflow config\"}",
+                "start_time": "2023-03-12T09:16:21.5648947Z",
+                "end_time": "2023-03-12T09:16:29.1280028Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/f1b305f49d4d4c5bab037e3003b1b11c')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"1e495f722c36859832fa5d6e4b99402a82a03a5a\",\"repoName\":\"gubesch/CloudComputing_GruppeZ\",\"slotName\":\"Production\",\"commitMessage\":\"fix pipeline\"}",
+                "start_time": "2023-03-12T09:57:29.4699233Z",
+                "end_time": "2023-03-12T09:57:36.6491629Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/hostNameBindings",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/', parameters('sites_CloudComputingGruppeZ_name'), '.azurewebsites.net')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "siteName": "CloudComputingGruppeZ",
+                "hostNameType": "Verified"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/Dev')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]",
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_CloudComputingGruppeZ_name'))]"
+            ],
+            "kind": "app",
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "cloudcomputinggruppez-dev.azurewebsites.net",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "cloudcomputinggruppez-dev.scm.azurewebsites.net",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_CloudComputingGruppeZ_name'))]",
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "vnetRouteAllEnabled": false,
+                "vnetImagePullEnabled": false,
+                "vnetContentShareEnabled": false,
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "acrUseManagedIdentityCreds": false,
+                    "alwaysOn": false,
+                    "http20Enabled": true,
+                    "functionAppScaleLimit": 0,
+                    "minimumElasticInstanceCount": 0
+                },
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": true,
+                "clientCertEnabled": false,
+                "clientCertMode": "Required",
+                "hostNamesDisabled": false,
+                "customDomainVerificationId": "26C6AAD691F93D279EE1F63D80E71431C52C900F629DD296BB849C42BF745EA1",
+                "containerSize": 0,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": true,
+                "redundancyMode": "None",
+                "storageAccountRequired": false,
+                "keyVaultReferenceIdentity": "SystemAssigned"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/PreProd')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]",
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_CloudComputingGruppeZ_name'))]"
+            ],
+            "kind": "app",
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "cloudcomputinggruppez-preprod.azurewebsites.net",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "cloudcomputinggruppez-preprod.scm.azurewebsites.net",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_CloudComputingGruppeZ_name'))]",
+                "reserved": false,
+                "isXenon": false,
+                "hyperV": false,
+                "vnetRouteAllEnabled": false,
+                "vnetImagePullEnabled": false,
+                "vnetContentShareEnabled": false,
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "acrUseManagedIdentityCreds": false,
+                    "alwaysOn": false,
+                    "http20Enabled": true,
+                    "functionAppScaleLimit": 0,
+                    "minimumElasticInstanceCount": 0
+                },
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": true,
+                "clientCertEnabled": false,
+                "clientCertMode": "Required",
+                "hostNamesDisabled": false,
+                "customDomainVerificationId": "26C6AAD691F93D279EE1F63D80E71431C52C900F629DD296BB849C42BF745EA1",
+                "containerSize": 0,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": true,
+                "redundancyMode": "None",
+                "storageAccountRequired": false,
+                "keyVaultReferenceIdentity": "SystemAssigned"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/basicPublishingCredentialsPolicies",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/Dev/ftp')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_CloudComputingGruppeZ_name'), 'Dev')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/basicPublishingCredentialsPolicies",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/PreProd/ftp')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_CloudComputingGruppeZ_name'), 'PreProd')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/basicPublishingCredentialsPolicies",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/Dev/scm')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_CloudComputingGruppeZ_name'), 'Dev')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/basicPublishingCredentialsPolicies",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/PreProd/scm')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_CloudComputingGruppeZ_name'), 'PreProd')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/config",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/Dev/web')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_CloudComputingGruppeZ_name'), 'Dev')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v7.0",
+                "phpVersion": "5.6",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": "VS2022",
+                "httpLoggingEnabled": false,
+                "acrUseManagedIdentityCreds": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$cloudcomputinggruppez__Dev",
+                "scmType": "GitHubAction",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": false,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": false
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "vnetRouteAllEnabled": false,
+                "vnetPrivatePortsCount": 0,
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": true,
+                "minTlsVersion": "1.2",
+                "scmMinTlsVersion": "1.2",
+                "ftpsState": "AllAllowed",
+                "preWarmedInstanceCount": 0,
+                "functionsRuntimeScaleMonitoringEnabled": false,
+                "minimumElasticInstanceCount": 0,
+                "azureStorageAccounts": {}
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/config",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/PreProd/web')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_CloudComputingGruppeZ_name'), 'PreProd')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v7.0",
+                "phpVersion": "5.6",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": "VS2019",
+                "httpLoggingEnabled": false,
+                "acrUseManagedIdentityCreds": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$cloudcomputinggruppez__PreProd",
+                "scmType": "GitHubAction",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": false,
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": false
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "vnetRouteAllEnabled": false,
+                "vnetPrivatePortsCount": 0,
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": true,
+                "minTlsVersion": "1.2",
+                "scmMinTlsVersion": "1.2",
+                "ftpsState": "AllAllowed",
+                "preWarmedInstanceCount": 0,
+                "functionsRuntimeScaleMonitoringEnabled": false,
+                "minimumElasticInstanceCount": 0,
+                "azureStorageAccounts": {}
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/Dev/3af047ede72d4d59ad23d967d1f881bc')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_CloudComputingGruppeZ_name'), 'Dev')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"d9387d984c9ce816b01c779d9bc4c6b2a595899f\",\"repoName\":\"gubesch/CloudComputing_GruppeZ\",\"slotName\":\"Dev\",\"commitMessage\":\"added simple JokeConsumerController and JokeModel\"}",
+                "start_time": "2023-03-12T20:11:29.7888692Z",
+                "end_time": "2023-03-12T20:11:40.0286474Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/Dev/5f6002f2a9d848ad82f8a8a3444d4bc0')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_CloudComputingGruppeZ_name'), 'Dev')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"e5a1dff5ec0178d0407415bd46e1f8d236860b42\",\"repoName\":\"gubesch/CloudComputing_GruppeZ\",\"slotName\":\"Dev\",\"commitMessage\":\"Merge remote-tracking branch 'origin/Dev' into Dev\"}",
+                "start_time": "2023-03-12T10:09:43.1045466Z",
+                "end_time": "2023-03-12T10:09:51.4734559Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/PreProd/6bcb1f39ea6f4d4f94797da9e1d2a166')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_CloudComputingGruppeZ_name'), 'PreProd')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"45d0a4617930129f0f91171471e981f363749877\",\"repoName\":\"gubesch/CloudComputing_GruppeZ\",\"slotName\":\"PreProd\",\"commitMessage\":\"Add or update the Azure App Service build and deployment workflow config\"}",
+                "start_time": "2023-03-12T10:00:59.3880809Z",
+                "end_time": "2023-03-12T10:01:18.0967444Z",
+                "active": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/Dev/c7ed891631f54678b61be5f408097a76')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_CloudComputingGruppeZ_name'), 'Dev')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"e1cd5ea5fa1939ab82a5bba36b68bbee4701437e\",\"repoName\":\"gubesch/CloudComputing_GruppeZ\",\"slotName\":\"Dev\",\"commitMessage\":\"Add or update the Azure App Service build and deployment workflow config\"}",
+                "start_time": "2023-03-12T10:03:12.0825568Z",
+                "end_time": "2023-03-12T10:03:19.3736633Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/deployments",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/Dev/e8b0a13d71e94ac9aa817d7c8970d08b')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_CloudComputingGruppeZ_name'), 'Dev')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"4d45131cfaa06336e9a32b4acbfdd737a119b2aa\",\"repoName\":\"gubesch/CloudComputing_GruppeZ\",\"slotName\":\"Dev\",\"commitMessage\":\"added JokesController\"}",
+                "start_time": "2023-03-12T20:56:49.1251373Z",
+                "end_time": "2023-03-12T20:56:59.6821171Z",
+                "active": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/hostNameBindings",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/Dev/', parameters('sites_CloudComputingGruppeZ_name'), '-dev.azurewebsites.net')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_CloudComputingGruppeZ_name'), 'Dev')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "siteName": "cloudcomputinggruppez(Dev)",
+                "hostNameType": "Verified"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/slots/hostNameBindings",
+            "apiVersion": "2022-03-01",
+            "name": "[concat(parameters('sites_CloudComputingGruppeZ_name'), '/PreProd/', parameters('sites_CloudComputingGruppeZ_name'), '-preprod.azurewebsites.net')]",
+            "location": "North Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites/slots', parameters('sites_CloudComputingGruppeZ_name'), 'PreProd')]",
+                "[resourceId('Microsoft.Web/sites', parameters('sites_CloudComputingGruppeZ_name'))]"
+            ],
+            "properties": {
+                "siteName": "cloudcomputinggruppez(PreProd)",
+                "hostNameType": "Verified"
+            }
+        }
+    ]
+}
