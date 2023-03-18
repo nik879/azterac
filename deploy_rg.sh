@@ -10,8 +10,4 @@ az group create -l northeurope -n ExampleGroup
 
 # Deploy the ARM Template
 echo "Deploy the ARM Template"
-az deployment group create \
-  --name ExampleDeployment \
-  --resource-group ExampleGroup \
-  --template-uri https://raw.githubusercontent.com/nik879/azterac/main/template.json \
-  --parameters parameters.json \
+az deployment group create --name ExampleDeployment --resource-group ExampleGroup --template-uri https://raw.githubusercontent.com/nik879/azterac/main/template.json  --parameters parameters.json 
